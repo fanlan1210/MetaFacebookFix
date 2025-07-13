@@ -1,24 +1,24 @@
-const { parser } = require('html-metadata-parser');
-const Koa = require('koa');
-const Router = require('@koa/router');
-const { get } = require('koa/lib/response');
-const serve = require('koa-static')
-const path = require('path');
+const { parser } = require("html-metadata-parser");
+const Koa = require("koa");
+const Router = require("@koa/router");
+const { get } = require("koa/lib/response");
+const serve = require("koa-static");
+const path = require("path");
 
 const app = new Koa();
 const router = new Router();
 
-app.use(serve(path.join(__dirname, 'public')));
+app.use(serve(path.join(__dirname, "public")));
 
 async function generateHtmlWithMetadata(url) {
-  const metadata = await parser(url).then(result=>{
-    // console.log(JSON.stringify(result, null, 3));   
+  const metadata = await parser(url).then((result) => {
+    // console.log(JSON.stringify(result, null, 3));
     return result;
-  })
+  });
   // .replace(`"`, `&#34;`)
-  let title = `${(metadata.og.title).split(" · ")[0] || metadata.og.title} &#128588; Google Maps 分享連結預覽好幫手`;
-  let description = `${metadata.og.description || ""}${metadata.og.description!=null?" - ":""}${metadata.og.title}`;
-  let img = metadata.og.image || "https://maps.dstw.dev/og.jpg"
+  let title = `${metadata.og.title.split(" · ")[0] || metadata.og.title} &#128588; Facebook 分享連結預覽好幫手`;
+  let description = `${metadata.og.description || ""}${metadata.og.description != null ? " - " : ""}${metadata.og.title}`;
+  let img = metadata.og.image || "/og.jpg";
   let html = `
   <!DOCTYPE html>
   <html>
@@ -49,7 +49,7 @@ async function generateHtmlWithMetadata(url) {
     <meta property="og:image" content="${img}" />
     <meta property="telegram_channel" content="turbolabit">
 
-    <!-- Redirect to Google Maps -->
+    <!-- Redirect to Facebook -->
     <meta http-equiv="refresh" content="2; url = ${url}" />
 
     <style>
@@ -75,23 +75,23 @@ async function generateHtmlWithMetadata(url) {
         content: "🔗 ";
       }
     </style>
-    
+
   </head>
   <body>
     <div class="message">
-      Google Maps 分享連結預覽好幫手 🙌 正在帶您前往 <a href="${url}">${url}</a>。
+      Facebook 分享連結預覽好幫手 🙌 正在帶您前往 <a href="${url}">${url}</a>。
     </div>
   </body>
   </html>
-  `
+  `;
   return html;
 }
 
-router.get('/', async (ctx, next) => {
-  let title = "Google Maps 分享連結預覽好幫手 🙌";
-  let description = "分享 Google Maps 連結有預覽資訊的神奇魔法！✨";
-  let img = `https://maps.dstw.dev/og.jpg`
-  let url = `https://maps.dstw.dev/`
+router.get("/", async (ctx, next) => {
+  let title = "Facebook 分享連結預覽好幫手 🙌";
+  let description = "分享 Facebook 連結有預覽資訊的神奇魔法！✨";
+  let img = `https://maps.dstw.dev/og.jpg`;
+  let url = `https://maps.dstw.dev/`;
   let html = `
   <!DOCTYPE html>
   <html>
@@ -121,38 +121,36 @@ router.get('/', async (ctx, next) => {
     <!-- Telegram -->
     <meta property="og:image" content="${img}" />
     <meta property="telegram_channel" content="turbolabit">
-    
+
     <!-- Redirect to README -->
     <meta http-equiv="refresh" content="0; url = https://github.com/yc97463/GMapsFix/blob/main/README.md" />
   </head>
   <body></body>
   </html>
-  `
+  `;
   ctx.body = html;
-  ctx.type = 'text/html';
+  ctx.type = "text/html";
 });
 
-router.get('/maps/:id', async (ctx, next) => {
-  const url = `https://goo.gl/maps/${ctx.params.id}`;
+router.get("/share/p/:id", async (ctx, next) => {
+  const url = `https://www.facebook.com/share/p/${ctx.params.id}`;
   // console.log(ctx.params.id);
-  
+
   ctx.body = await generateHtmlWithMetadata(url);
-  ctx.type = 'text/html';
+  ctx.type = "text/html";
 });
 
-router.get('/:id', async (ctx, next) => {
-  const url = `https://maps.app.goo.gl/${ctx.params.id}`;
-  const metadata = await parser(url).then(result=>{ 
+router.get("/:id", async (ctx, next) => {
+  const url = `https://www.facebook.com/share/p/${ctx.params.id}`;
+  const metadata = await parser(url).then((result) => {
     return result;
-  })
+  });
   ctx.body = await generateHtmlWithMetadata(url);
-  ctx.type = 'text/html';
+  ctx.type = "text/html";
 });
 
-app
-  .use(router.routes())
-  .use(router.allowedMethods());
+app.use(router.routes()).use(router.allowedMethods());
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000  \n');
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server running on ${process.env.PORT || 3000}\n`);
 });
