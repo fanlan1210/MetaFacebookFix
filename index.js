@@ -148,6 +148,14 @@ router.get("/share/:id", async (ctx, next) => {
   ctx.type = "text/html";
 });
 
+router.get("/:username/posts/:id", async (ctx, next) => {
+  const url = `https://www.facebook.com/${ctx.params.username}/posts/${ctx.params.id}`;
+  // console.log(ctx.params.id);
+
+  ctx.body = await generateHtmlWithMetadata(url);
+  ctx.type = "text/html";
+});
+
 router.get("/:id", async (ctx, next) => {
   const url = `https://www.facebook.com/share/p/${ctx.params.id}`;
   const metadata = await parser(url).then((result) => {
