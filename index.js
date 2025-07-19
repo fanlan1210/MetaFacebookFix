@@ -16,9 +16,9 @@ async function generateHtmlWithMetadata(url) {
     return result;
   });
   // .replace(`"`, `&#34;`)
-  let title = `${metadata.og.title.split(" · ")[0] || metadata.og.title} &#128588; Facebook 分享連結預覽好幫手`;
-  let description = `${metadata.og.description || ""}${metadata.og.description != null ? " - " : ""}${metadata.og.title}`;
-  let img = metadata.og.image || "/og.jpg";
+  let title = `${metadata.og.title} &#128588; Facebook 分享連結預覽好幫手`;
+  let description = `${metadata.og.description ?? ""}${metadata.og.description != null ? " - " : ""}${metadata.og.title}`;
+  let img = metadata.og.image ?? "/og.jpg";
   let html = `
   <!DOCTYPE html>
   <html>
