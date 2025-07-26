@@ -11,7 +11,7 @@ const router = new Router();
 app.use(serve(path.join(__dirname, "public")));
 
 async function generateHtmlWithMetadata(url) {
-  const metadata = await parser(url).then((result) => {
+  const metadata = await parser(url, { maxRedirects: 5 }).then((result) => {
     // console.log(JSON.stringify(result, null, 3));
     return result;
   });
